@@ -1,0 +1,90 @@
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Post, PostDocument } from './schemas/post.schema';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+
+@Injectable()
+export class PostsService {
+  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
+
+  async create(createPostDto: CreatePostDto, authorId: string): Promise<PostDocument> {
+    const post = new this.postModel({
+      ...createPostDto,
+      author: new Types.ObjectId(authorId),
+    });
+    return post.save();
+  }
+
+  async findAll(onlyPublished = true): Promise<PostDocument[]> {
+    const query = onlyPublished ? { published: true } : {};
+    return this.postModel
+      .find(query)
+      .populate('author', 'username email avatar')
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
+  async findByAuthor(authorId: string): Promise<PostDocument[]> {
+    return this.postModel
+      .find({ author: new Types.ObjectId(authorId) })
+      .populate('author', 'username email avatar')
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
+  async findOne(id: string): Promise<PostDocument> {
+    const post = await this.postModel
+      .findById(id)
+      .populate('author', 'username email avatar')
+      .exec();
+
+    if (!post) {
+      throw new NotFoundException('文章不存在');
+    }
+
+    return post;
+  }
+
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+    userId: string,
+  ): Promise<PostDocument> {
+    const post = await this.postModel.findById(id).exec();
+
+    if (!post) {
+      throw new NotFoundException('文章不存在');
+    }
+
+    if (post.author.toString() !== userId) {
+      throw new ForbiddenException('无权修改此文章');
+    }
+
+    const updatedPost = await this.postModel
+      .findByIdAndUpdate(id, updatePostDto, { new: true })
+      .populate('author', 'username email avatar')
+      .exec();
+
+    return updatedPost!;
+  }
+
+  async remove(id: string, userId: string): Promise<void> {
+    const post = await this.postModel.findById(id).exec();
+
+    if (!post) {
+      throw new NotFoundException('文章不存在');
+    }
+
+    if (post.author.toString() !== userId) {
+      throw new ForbiddenException('无权删除此文章');
+    }
+
+    await this.postModel.findByIdAndDelete(id).exec();
+  }
+
+  async incrementViewCount(id: string): Promise<void> {
+    await this.postModel.findByIdAndUpdate(id, { $inc: { viewCount: 1 } }).exec();
+  }
+}
