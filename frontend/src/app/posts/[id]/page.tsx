@@ -21,10 +21,13 @@ import {
   EditOutlined,
   DeleteOutlined,
   ArrowLeftOutlined,
+  CommentOutlined,
 } from '@ant-design/icons';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Post } from '@/types';
+import LikeButton from '@/components/posts/LikeButton';
+import CommentSection from '@/components/posts/CommentSection';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -69,6 +72,12 @@ export default function PostDetailPage() {
     }
   };
 
+  const handleLikeChange = (likeCount: number, isLiked: boolean) => {
+    if (post) {
+      setPost({ ...post, likeCount, isLiked });
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-CN', {
@@ -80,7 +89,7 @@ export default function PostDetailPage() {
     });
   };
 
-  const isAuthor = user && post?.author && user.id === (post.author as unknown as { _id: string })._id;
+  const isAuthor = user && post?.author && user.id === post.author.id;
 
   if (loading) {
     return (
@@ -133,8 +142,22 @@ export default function PostDetailPage() {
                 <EyeOutlined style={{ color: '#8c8c8c' }} />
                 <Text type="secondary">{post.viewCount} 阅读</Text>
               </Space>
+
+              <Space size={4}>
+                <CommentOutlined style={{ color: '#8c8c8c' }} />
+                <Text type="secondary">{post.commentCount || 0} 评论</Text>
+              </Space>
             </Space>
           </div>
+
+          <Space>
+            <LikeButton
+              postId={post.id}
+              initialLiked={post.isLiked}
+              initialCount={post.likeCount || 0}
+              onCountChange={handleLikeChange}
+            />
+          </Space>
 
           {isAuthor && (
             <>
@@ -174,6 +197,8 @@ export default function PostDetailPage() {
               {post.content}
             </Paragraph>
           </div>
+
+          <CommentSection postId={post.id} />
         </Space>
       </Card>
     </div>

@@ -31,7 +31,7 @@ export default function PostList({ posts, loading = false }: PostListProps) {
   return (
     <div>
       {posts.map((post) => (
-        <PostCard key={post._id} post={post} />
+        <PostCard key={post.id} post={post} />
       ))}
     </div>
   );
