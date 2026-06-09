@@ -3,7 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Typography, Space, Avatar, Tag } from 'antd';
-import { UserOutlined, EyeOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  EyeOutlined,
+  ClockCircleOutlined,
+  LikeOutlined,
+  MessageOutlined,
+} from '@ant-design/icons';
 import type { Post } from '@/types';
 
 const { Title, Paragraph, Text } = Typography;
@@ -12,6 +18,9 @@ interface PostCardProps {
   post: Post;
 }
 
+/**
+ * 文章卡片：用于列表页展示文章摘要信息及统计数据。
+ */
 export default function PostCard({ post }: PostCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -42,7 +51,7 @@ export default function PostCard({ post }: PostCardProps) {
             {post.summary || post.content.slice(0, 200)}
           </Paragraph>
 
-          <Space split={<Text type="secondary">·</Text>}>
+          <Space split={<Text type="secondary">·</Text>} wrap>
             <Space size={4}>
               <Avatar
                 size="small"
@@ -60,6 +69,16 @@ export default function PostCard({ post }: PostCardProps) {
             <Space size={4}>
               <EyeOutlined style={{ color: '#8c8c8c' }} />
               <Text type="secondary">{post.viewCount} 阅读</Text>
+            </Space>
+
+            <Space size={4}>
+              <LikeOutlined style={{ color: '#8c8c8c' }} />
+              <Text type="secondary">{post.likeCount ?? 0} 点赞</Text>
+            </Space>
+
+            <Space size={4}>
+              <MessageOutlined style={{ color: '#8c8c8c' }} />
+              <Text type="secondary">{post.commentCount ?? 0} 评论</Text>
             </Space>
 
             {!post.published && (
