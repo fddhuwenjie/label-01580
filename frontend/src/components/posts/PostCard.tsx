@@ -3,7 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Typography, Space, Avatar, Tag } from 'antd';
-import { UserOutlined, EyeOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  EyeOutlined,
+  ClockCircleOutlined,
+  CommentOutlined,
+  LikeOutlined,
+} from '@ant-design/icons';
 import type { Post } from '@/types';
 
 const { Title, Paragraph, Text } = Typography;
@@ -23,7 +29,7 @@ export default function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Link href={`/posts/${post._id}`}>
+    <Link href={`/posts/${post.id}`}>
       <Card
         hoverable
         style={{ marginBottom: 16 }}
@@ -42,7 +48,7 @@ export default function PostCard({ post }: PostCardProps) {
             {post.summary || post.content.slice(0, 200)}
           </Paragraph>
 
-          <Space split={<Text type="secondary">·</Text>}>
+          <Space split={<Text type="secondary">·</Text>} wrap>
             <Space size={4}>
               <Avatar
                 size="small"
@@ -62,9 +68,19 @@ export default function PostCard({ post }: PostCardProps) {
               <Text type="secondary">{post.viewCount} 阅读</Text>
             </Space>
 
-            {!post.published && (
-              <Tag color="orange">草稿</Tag>
-            )}
+            <Space size={4}>
+              <CommentOutlined style={{ color: '#8c8c8c' }} />
+              <Text type="secondary">{post.commentCount || 0} 评论</Text>
+            </Space>
+
+            <Space size={4}>
+              <LikeOutlined style={{ color: post.isLiked ? '#1890ff' : '#8c8c8c' }} />
+              <Text type="secondary" style={{ color: post.isLiked ? '#1890ff' : undefined }}>
+                {post.likeCount || 0} 点赞
+              </Text>
+            </Space>
+
+            {!post.published && <Tag color="orange">草稿</Tag>}
           </Space>
         </Space>
       </Card>

@@ -6,15 +6,36 @@ export interface User {
 }
 
 export interface Post {
-  _id: string;
+  id: string;
+  _id?: string;
   title: string;
   content: string;
   summary?: string;
   author: User;
   published: boolean;
   viewCount: number;
+  commentCount: number;
+  likeCount: number;
+  isLiked: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Comment {
+  id: string;
+  _id?: string;
+  postId: string;
+  author: User;
+  content: string;
+  parentId: string | null;
+  replyTo: User | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LikeStatus {
+  liked: boolean;
+  likeCount: number;
 }
 
 export interface LoginRequest {
@@ -44,6 +65,12 @@ export interface UpdatePostRequest {
   content?: string;
   summary?: string;
   published?: boolean;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+  parentId?: string;
+  replyTo?: string;
 }
 
 export interface ApiError {

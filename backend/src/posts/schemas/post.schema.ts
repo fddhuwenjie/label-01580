@@ -3,7 +3,18 @@ import { Document, Types } from 'mongoose';
 
 export type PostDocument = Post & Document;
 
-@Schema({ timestamps: true })
+const transformFn = (_doc: unknown, ret: Record<string, unknown>) => {
+  ret.id = (ret._id as string).toString();
+  delete ret._id;
+  delete ret.__v;
+  return ret;
+};
+
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true, transform: transformFn },
+  toObject: { virtuals: true, transform: transformFn },
+})
 export class Post {
   @Prop({ required: true })
   title: string;
