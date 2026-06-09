@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Typography, Space, Avatar, Tag } from 'antd';
-import { UserOutlined, EyeOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { UserOutlined, EyeOutlined, ClockCircleOutlined, MessageOutlined, HeartOutlined } from '@ant-design/icons';
 import type { Post } from '@/types';
 
 const { Title, Paragraph, Text } = Typography;
@@ -61,6 +61,20 @@ export default function PostCard({ post }: PostCardProps) {
               <EyeOutlined style={{ color: '#8c8c8c' }} />
               <Text type="secondary">{post.viewCount} 阅读</Text>
             </Space>
+
+            {post.commentCount !== undefined && (
+              <Space size={4}>
+                <MessageOutlined style={{ color: '#8c8c8c' }} />
+                <Text type="secondary">{post.commentCount} 评论</Text>
+              </Space>
+            )}
+
+            {post.likeCount !== undefined && (
+              <Space size={4}>
+                <HeartOutlined style={{ color: '#8c8c8c' }} />
+                <Text type="secondary">{post.likeCount} 喜欢</Text>
+              </Space>
+            )}
 
             {!post.published && (
               <Tag color="orange">草稿</Tag>
