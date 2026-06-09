@@ -1,5 +1,6 @@
 export interface User {
-  id: string;
+  _id: string;
+  id?: string;
   username: string;
   avatar?: string;
   bio?: string;
@@ -13,8 +14,34 @@ export interface Post {
   author: User;
   published: boolean;
   viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  isLiked?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Comment {
+  _id: string;
+  postId: string;
+  author: User;
+  content: string;
+  parentId: string | null;
+  replyTo: User | null;
+  replies?: Comment[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+  parentId?: string;
+  replyTo?: string;
+}
+
+export interface LikeResult {
+  liked: boolean;
+  likeCount: number;
 }
 
 export interface LoginRequest {

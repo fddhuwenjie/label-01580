@@ -6,6 +6,9 @@ import type {
   CreatePostRequest,
   UpdatePostRequest,
   User,
+  Comment,
+  CreateCommentRequest,
+  LikeResult,
 } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -98,6 +101,39 @@ class ApiClient {
     await this.request<void>(`/posts/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // Comments
+  async getComments(postId: string): Promise<Comment[]> {
+    return this.request<Comment[]>(`/posts/${postId}/comments`);
+  }
+
+  async createComment(postId: string, data: CreateCommentRequest): Promise<Comment> {
+    return this.request<Comment>(`/posts/${postId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteComment(postId: string, commentId: string): Promise<void> {
+    await this.request<void>(`/posts/${postId}/comments/${commentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Likes
+  async toggleLike(postId: string): Promise<LikeResult> {
+    return this.request<LikeResult>(`/posts/${postId}/like`, {
+      method: 'POST',
+    });
+  }
+
+  async getLikeCount(postId: string): Promise<{ count: number }> {
+    return this.request<{ count: number }>(`/posts/${postId}/like/count`);
+  }
+
+  async getLikeStatus(postId: string): Promise<{ liked: boolean }> {
+    return this.request<{ liked: boolean }>(`/posts/${postId}/like/status`);
   }
 }
 
