@@ -21,10 +21,13 @@ import {
   EditOutlined,
   DeleteOutlined,
   ArrowLeftOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Post } from '@/types';
+import LikeButton from '@/components/posts/LikeButton';
+import CommentSection from '@/components/posts/CommentSection';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -69,6 +72,16 @@ export default function PostDetailPage() {
     }
   };
 
+  const handleLikeChange = (liked: boolean, count: number) => {
+    if (post) {
+      setPost({
+        ...post,
+        isLiked: liked,
+        likeCount: count,
+      });
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-CN', {
@@ -80,7 +93,7 @@ export default function PostDetailPage() {
     });
   };
 
-  const isAuthor = user && post?.author && user.id === (post.author as unknown as { _id: string })._id;
+  const isAuthor = user && post?.author && (user.id || user._id) === post.author._id;
 
   if (loading) {
     return (
@@ -133,8 +146,23 @@ export default function PostDetailPage() {
                 <EyeOutlined style={{ color: '#8c8c8c' }} />
                 <Text type="secondary">{post.viewCount} 阅读</Text>
               </Space>
+
+              <Space size={4}>
+                <MessageOutlined style={{ color: '#8c8c8c' }} />
+                <Text type="secondary">{post.commentCount || 0} 评论</Text>
+              </Space>
             </Space>
           </div>
+
+          <Space size="middle">
+            <LikeButton
+              postId={post._id}
+              initialLiked={post.isLiked}
+              initialCount={post.likeCount || 0}
+              onLikeChange={handleLikeChange}
+              size="middle"
+            />
+          </Space>
 
           {isAuthor && (
             <>
@@ -175,6 +203,10 @@ export default function PostDetailPage() {
             </Paragraph>
           </div>
         </Space>
+      </Card>
+
+      <Card style={{ marginTop: 24 }}>
+        <CommentSection postId={id} />
       </Card>
     </div>
   );

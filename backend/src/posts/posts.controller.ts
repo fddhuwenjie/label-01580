@@ -29,20 +29,28 @@ export class PostsController {
   }
 
   @Get()
-  findAll(@Query('all') all?: string) {
+  findAll(
+    @Query('all') all?: string,
+    @Request() req?: { user?: { userId: string } },
+  ) {
     const onlyPublished = all !== 'true';
-    return this.postsService.findAll(onlyPublished);
+    const userId = req?.user?.userId;
+    return this.postsService.findAll(onlyPublished, userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
   findMyPosts(@Request() req: { user: { userId: string } }) {
-    return this.postsService.findByAuthor(req.user.userId);
+    return this.postsService.findByAuthor(req.user.userId, req.user.userId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const post = await this.postsService.findOne(id);
+  async findOne(
+    @Param('id') id: string,
+    @Request() req?: { user?: { userId: string } },
+  ) {
+    const userId = req?.user?.userId;
+    const post = await this.postsService.findOne(id, userId);
     // Increment view count
     await this.postsService.incrementViewCount(id);
     return post;
