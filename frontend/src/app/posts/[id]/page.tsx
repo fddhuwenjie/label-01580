@@ -21,10 +21,14 @@ import {
   EditOutlined,
   DeleteOutlined,
   ArrowLeftOutlined,
+  MessageOutlined,
+  HeartOutlined,
 } from '@ant-design/icons';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Post } from '@/types';
+import LikeButton from '@/components/likes/LikeButton';
+import CommentList from '@/components/comments/CommentList';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -35,6 +39,8 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
 
   const id = params.id as string;
 
@@ -43,6 +49,16 @@ export default function PostDetailPage() {
       try {
         const data = await api.getPost(id);
         setPost(data);
+        setLikeCount(data.likeCount ?? 0);
+        if (user) {
+          try {
+            const status = await api.getLikeStatus(id);
+            setLiked(status.liked);
+            setLikeCount(status.likeCount);
+          } catch {
+            // ignore like status fetch error
+          }
+        }
       } catch (error) {
         message.error(error instanceof Error ? error.message : '获取文章失败');
         router.push('/');
@@ -54,7 +70,7 @@ export default function PostDetailPage() {
     if (id) {
       fetchPost();
     }
-  }, [id, router]);
+  }, [id, router, user]);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -133,6 +149,20 @@ export default function PostDetailPage() {
                 <EyeOutlined style={{ color: '#8c8c8c' }} />
                 <Text type="secondary">{post.viewCount} 阅读</Text>
               </Space>
+
+              {post.commentCount !== undefined && (
+                <Space size={4}>
+                  <MessageOutlined style={{ color: '#8c8c8c' }} />
+                  <Text type="secondary">{post.commentCount} 评论</Text>
+                </Space>
+              )}
+
+              {post.likeCount !== undefined && (
+                <Space size={4}>
+                  <HeartOutlined style={{ color: '#8c8c8c' }} />
+                  <Text type="secondary">{post.likeCount} 喜欢</Text>
+                </Space>
+              )}
             </Space>
           </div>
 
@@ -174,6 +204,20 @@ export default function PostDetailPage() {
               {post.content}
             </Paragraph>
           </div>
+
+          <Divider />
+
+          <div>
+            <LikeButton
+              postId={post._id}
+              initialLiked={liked}
+              initialCount={likeCount}
+            />
+          </div>
+
+          <Divider />
+
+          <CommentList postId={post._id} currentUser={user} />
         </Space>
       </Card>
     </div>

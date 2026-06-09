@@ -13,6 +13,8 @@ export interface Post {
   author: User;
   published: boolean;
   viewCount: number;
+  commentCount?: number;
+  likeCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -50,4 +52,24 @@ export interface ApiError {
   statusCode: number;
   message: string;
   timestamp: string;
+}
+
+export interface Comment {
+  _id: string;
+  content: string;
+  post: string;
+  author: User;
+  parentComment: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LikeStatus {
+  liked: boolean;
+  likeCount: number;
+}
+
+export interface PostWithStats extends Post {
+  commentCount: number;
+  likeCount: number;
 }
